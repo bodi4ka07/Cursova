@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Футбольна аналітика</title>
+  <link rel="stylesheet" href="style.css" id="theme-stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Верхня панель -->
+  <header class="top-header">
+    <div class="logo-container" onclick="handleLogoClick()" title="Меню / На головну">
+      <img src="logo.jpg" alt="ЛОГОТИП" class="logo" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23333%22/><text x=%2250%22 y=%2260%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>⚽</text></svg>'">
+    </div>
+    <div class="search-container">
+      <input type="text" 
+             placeholder="Пошук матчів" 
+             class="search-input" 
+             id="searchInput"
+             autocomplete="off"
+             autocorrect="off"
+             autocapitalize="off"
+             spellcheck="false">
+    </div>
+  
+  </header>
+
+  <!-- Бічне меню -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>Чемпіонат</h3>
+      <button class="home-btn" onclick="goHome()" title="На головну">Головна</button>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <!-- Міжнародні турніри -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('international')">
+          <span>🌍 Міжнародні турніри</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="international">
+          <div class="submenu-item" onclick="selectLeague('WC', event)">FIFA World Cup</div>
+          <div class="submenu-item" onclick="selectLeague('CL', event)">UEFA Champions League</div>
+          <div class="submenu-item" onclick="selectLeague('EC', event)">European Championship</div>
+        </div>
+      </div>
+
+      <!-- Англія -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('england')">
+          <span>🇬🇧 Англія</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="england">
+          <div class="submenu-item" onclick="selectLeague('PL', event)">Premier League</div>
+          <div class="submenu-item" onclick="selectLeague('ELC', event)">Championship</div>
+        </div>
+      </div>
+
+      <!-- Іспанія -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('spain')">
+          <span>🇪🇸 Іспанія</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="spain">
+          <div class="submenu-item" onclick="selectLeague('PD', event)">La Liga</div>
+        </div>
+      </div>
+
+      <!-- Італія -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('italy')">
+          <span>🇮🇹 Італія</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="italy">
+          <div class="submenu-item" onclick="selectLeague('SA', event)">Serie A</div>
+        </div>
+      </div>
+
+      <!-- Німеччина -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('germany')">
+          <span>🇩🇪 Німеччина</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="germany">
+          <div class="submenu-item" onclick="selectLeague('BL1', event)">Bundesliga</div>
+        </div>
+      </div>
+
+      <!-- Франція -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('france')">
+          <span>🇫🇷 Франція</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="france">
+          <div class="submenu-item" onclick="selectLeague('FL1', event)">Ligue 1</div>
+        </div>
+      </div>
+
+      <!-- Нідерланди -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('netherlands')">
+          <span>🇳🇱 Нідерланди</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="netherlands">
+          <div class="submenu-item" onclick="selectLeague('DED', event)">Eredivisie</div>
+        </div>
+      </div>
+
+      <!-- Португалія -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('portugal')">
+          <span>🇵🇹 Португалія</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="portugal">
+          <div class="submenu-item" onclick="selectLeague('PPL', event)">Primeira Liga</div>
+        </div>
+      </div>
+
+      <!-- Бразилія -->
+      <div class="league-group">
+        <div class="league-item" onclick="toggleLeague('brazil')">
+          <span>🇧🇷 Бразилія</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="league-submenu" id="brazil">
+          <div class="submenu-item" onclick="selectLeague('BSA', event)">Série A</div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="settings-icon" onclick="toggleSettingsPanel()" title="Налаштування">
+       <span style="font-size: 30px;">⚙️</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Панель налаштувань -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-content">
+      <h3>Налаштування</h3>
+      <div class="setting-item">
+        <span class="setting-label">Тема</span>
+        <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">
+          <span id="currentTheme">Світла</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Основний контент -->
+  <main class="main-content" id="mainContent">
+    <!-- Головна сторінка -->
+    <div class="home-view" id="home-view">
+      <div class="home-header">
+        <h2>⚽ Найближчі матчі</h2>
+        <p class="home-subtitle">Актуальні матчі всіх турнірів</p>
+      </div>
+      <div class="loading" id="home-loading">Завантажую матчі...</div>
+      <div id="upcoming-matches-container"></div>
+    </div>
+
+    <!-- Контент турнірів (таблиці, матчі) -->
+    <div class="league-content" id="league-content" style="display: none;">
+      <div class="content-header">
+        <h2 id="currentLeagueName">Оберіть турнір</h2>
+        <div class="view-tabs">
+          <button class="tab-btn active" onclick="showView('standings')">Турнірна таблиця</button>
+          <button class="tab-btn" onclick="showView('matches')">Матчі</button>
+        </div>
+      </div>
+
+    <!-- Турнірна таблиця -->
+    <div class="view-content" id="standings-view" style="display: block;">
+      <div class="loading" id="standings-loading" style="display:none;">Завантажую...</div>
+      <div class="table-container">
+        <table id="standings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Команда</th>
+              <th>І</th>
+              <th>В</th>
+              <th>Н</th>
+              <th>П</th>
+              <th>ЗМ</th>
+              <th>ПМ</th>
+              <th>Різниця</th>
+              <th>Очки</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Матчі -->
+    <div class="view-content" id="matches-view" style="display:none;">
+      <div class="loading" id="matches-loading" style="display:none;">Завантажую...</div>
+      <div class="table-container">
+        <table id="matches-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Домашні</th>
+              <th>Гості</th>
+              <th>Рахунок</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <canvas id="matchesChart" style="max-width: 800px; margin: 20px auto;"></canvas>
+    </div>
+
+    <!-- Аналітика матчу -->
+    <div class="view-content" id="analytics-view" style="display:none;">
+      <button class="back-btn" onclick="showView('matches')">← Назад до матчів</button>
+      <div id="analytics"></div>
+    </div>
+    </div><!-- Закінчення league-content -->
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
