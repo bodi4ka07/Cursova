@@ -126,7 +126,7 @@ function calculateWinProbability(homeStats, awayStats) {
   let drawProbability;
   
   if (scoreDifference > 30) {
-    // Дуже велика різниця (як Burnley vs Chelsea)
+    // Дуже велика різниця 
     drawProbability = 8 + (scoreDifference / 10); // 8-12%
   } else if (scoreDifference > 20) {
     // Велика різниця
@@ -608,8 +608,11 @@ function drawChart(data) {
   });
 }
 
+// Замініть функцію loadMatchDetails на цю версію:
+
 async function loadMatchDetails(matchId) {
   try {
+    // Отримуємо базову інформацію про матч
     const basicResponse = await fetch(`http://localhost:8080/match/${matchId}`);
     const basicData = await basicResponse.json();
     const basicMatch = basicData.match;
@@ -619,11 +622,12 @@ async function loadMatchDetails(matchId) {
     }
 
     const homeTeam = basicMatch.homeTeam?.name || '';
-   const awayTeam = basicMatch.awayTeam?.name || '';
+    const awayTeam = basicMatch.awayTeam?.name || '';
     const matchDate = basicMatch.utcDate;
 
     let detailedData = null;
     
+    // Намагаємося отримати детальну статистику
     try {
       const detailedResponse = await fetch(
         `http://localhost:8080/match-detailed/${currentLeague}/${encodeURIComponent(homeTeam)}/${encodeURIComponent(awayTeam)}/${encodeURIComponent(matchDate)}`
@@ -631,16 +635,22 @@ async function loadMatchDetails(matchId) {
       
       if (detailedResponse.ok) {
         detailedData = await detailedResponse.json();
+        
+        // Якщо є примітка про mock-дані, показуємо користувачу
+        if (detailedData.note) {
+          console.log("ℹ️", detailedData.note);
+        }
       }
     } catch (detailedError) {
-      console.log("Детальні дані недоступні:", detailedError.message);
+      console.log("⚠️ Детальні дані недоступні:", detailedError.message);
     }
 
+    // Відображаємо інформацію про матч
     displayDetailedMatch(basicMatch, detailedData);
     showView("analytics");
     
   } catch (err) {
-    console.error("Error loadMatchDetails:", err);
+    console.error("❌ Error loadMatchDetails:", err);
     document.getElementById("analytics").innerHTML = 
       `<p>Помилка завантаження аналітики: ${err.message}</p>`;
   }

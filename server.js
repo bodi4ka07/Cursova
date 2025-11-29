@@ -3,33 +3,16 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-
 const app = express();
 const PORT = 8080;
 
 app.use(cors());
 
 const FOOTBALL_DATA_API_KEY = process.env.FOOTBALL_DATA_API_KEY;
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
-
-const LEAGUE_MAPPING = {
-  'PL': '39',
-  'PD': '140',
-  'SA': '135',
-  'BL1': '78',
-  'FL1': '61',
-  'CL': '2',
-  'WC': '1',
-  'EC': '4',
-  'ELC': '40',
-  'DED': '88',
-  'PPL': '94',
-  'BSA': '71'
-};
 
 const ALL_COMPETITIONS = ['PL', 'PD', 'SA', 'BL1', 'FL1', 'CL', 'ELC', 'DED', 'PPL', 'BSA'];
 
-// НОВИЙ ENDPOINT - Головна сторінка з найближчими матчами
+// ГОЛОВНА СТОРІНКА З НАЙБЛИЖЧИМИ МАТЧАМИ
 app.get("/upcoming-matches", async (req, res) => {
   console.log(`🏠 Завантаження головної сторінки з найближчими матчами`);
   
@@ -39,7 +22,7 @@ app.get("/upcoming-matches", async (req, res) => {
     
     for (const competition of ALL_COMPETITIONS) {
       try {
-        console.log(`🔄 Завантажую матчі для ${competition}...`);
+        console.log(`📄 Завантажую матчі для ${competition}...`);
         
         // Отримуємо матчі турніру
         const matchesResponse = await axios.get(
@@ -81,12 +64,10 @@ app.get("/upcoming-matches", async (req, res) => {
               return true;
             }
             
-           // Майбутні матчі (до 30 днів)
-  if (match.status === 'TIMED' || match.status === 'SCHEDULED') {
-    return daysDiff >= 0 && daysDiff <= 30;
-  }
-            
-          
+            // Майбутні матчі (до 30 днів)
+            if (match.status === 'TIMED' || match.status === 'SCHEDULED') {
+              return daysDiff >= 0 && daysDiff <= 30;
+            }
             
             return false;
           })
@@ -137,7 +118,7 @@ app.get("/upcoming-matches", async (req, res) => {
           });
           console.log(`✅ ${competition}: Додано ${relevantMatches.length} матчів`);
         } else {
-          console.log(`⏭️ ${competition}: Немає матчів для відображення`);
+          console.log(`⭕️ ${competition}: Немає матчів для відображення`);
         }
 
         // Затримка між запитами (ліміт API)
@@ -167,7 +148,7 @@ app.get("/upcoming-matches", async (req, res) => {
   }
 });
 
-// НОВИЙ ENDPOINT - Пошук клубу по всіх чемпіонатах
+// ПОШУК КЛУБУ ПО ВСІХ ЧЕМПІОНАТАХ
 app.get("/search-club/:teamName", async (req, res) => {
   const teamName = req.params.teamName;
   console.log(`🔍 Пошук клубу: ${teamName}`);
@@ -268,7 +249,7 @@ app.get("/search-club/:teamName", async (req, res) => {
   }
 });
 
-// Отримати всі матчі турніру
+// ОТРИМАТИ ВСІ МАТЧІ ТУРНІРУ
 app.get("/matches/:competition", async (req, res) => {
   const competition = req.params.competition;
   try {
@@ -285,13 +266,13 @@ app.get("/matches/:competition", async (req, res) => {
   }
 });
 
-// Отримати турнірну таблицю
+// ОТРИМАТИ ТУРНІРНУ ТАБЛИЦЮ
 app.get("/standings/:competition", async (req, res) => {
   const competition = req.params.competition;
   console.log(`📋 Запит турнірної таблиці для: ${competition}`);
 
   try {
-    console.log(`🏈 Отримую таблицю для ліги: ${competition}`);
+    console.log(`🏆 Отримую таблицю для ліги: ${competition}`);
     const response = await axios.get(
       `https://api.football-data.org/v4/competitions/${competition}/standings`,
       { headers: { "X-Auth-Token": FOOTBALL_DATA_API_KEY } }
@@ -304,7 +285,7 @@ app.get("/standings/:competition", async (req, res) => {
   }
 });
 
-// Базова інформація про матч
+// БАЗОВА ІНФОРМАЦІЯ ПРО МАТЧ
 app.get("/match/:id", async (req, res) => {
   const matchId = req.params.id;
   try {
@@ -325,6 +306,7 @@ app.get("/match/:id", async (req, res) => {
   } catch (error) {
     console.error("❌ Match details error:", error.response?.data || error.message);
     
+    // Повертаємо заглушку
     const mockMatch = {
       match: {
         id: matchId,
@@ -340,124 +322,14 @@ app.get("/match/:id", async (req, res) => {
       }
     };
     
-    console.log(`📝 Повертаю заглушку для матчу ${matchId}`);
+    console.log(`🔄 Повертаю заглушку для матчу ${matchId}`);
     res.json(mockMatch);
-  }
-});
-
-// Детальна аналітика з API-Football
-app.get("/match-detailed/:competition/:homeTeam/:awayTeam/:date", async (req, res) => {
-  const { competition, homeTeam, awayTeam, date } = req.params;
-  
-  try {
-    const rapidApiLeagueId = LEAGUE_MAPPING[competition];
-    if (!rapidApiLeagueId) {
-      return res.json({ error: "Ліга не підтримується в API-Football" });
-    }
-
-    const matchDate = new Date(date).toISOString().split('T')[0];
-
-    const fixturesResponse = await axios.get(
-      'https://api-football-v1.p.rapidapi.com/v3/fixtures',
-      {
-        headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        },
-        params: {
-          league: rapidApiLeagueId,
-          season: '2024',
-          date: matchDate
-        }
-      }
-    );
-
-    const fixtures = fixturesResponse.data.response || [];
-    
-    const fixture = fixtures.find(match => {
-      const homeMatch = match.teams.home.name.toLowerCase().includes(homeTeam.split(' ')[0].toLowerCase()) || 
-                       homeTeam.toLowerCase().includes(match.teams.home.name.split(' ')[0].toLowerCase());
-      const awayMatch = match.teams.away.name.toLowerCase().includes(awayTeam.split(' ')[0].toLowerCase()) || 
-                       awayTeam.toLowerCase().includes(match.teams.away.name.split(' ')[0].toLowerCase());
-      
-      return homeMatch && awayMatch;
-    });
-
-    if (!fixture) {
-      const mockData = {
-        statistics: [
-          {
-            team: { name: homeTeam },
-            statistics: [
-              { type: "Shots on Goal", value: "8" },
-              { type: "Total Shots", value: "15" },
-              { type: "Ball Possession", value: "65" },
-              { type: "Fouls", value: "12" },
-              { type: "Corner Kicks", value: "6" }
-            ]
-          },
-          {
-            team: { name: awayTeam },
-            statistics: [
-              { type: "Shots on Goal", value: "5" },
-              { type: "Total Shots", value: "12" },
-              { type: "Ball Possession", value: "35" },
-              { type: "Fouls", value: "8" },
-              { type: "Corner Kicks", value: "3" }
-            ]
-          }
-        ],
-        lineups: [],
-        events: []
-      };
-      
-      return res.json(mockData);
-    }
-
-    const [statisticsResponse, lineupsResponse, eventsResponse] = await Promise.all([
-      axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics', {
-        headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        },
-        params: { fixture: fixture.fixture.id }
-      }).catch(err => ({ data: { response: [] } })),
-      
-      axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures/lineups', {
-        headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        },
-        params: { fixture: fixture.fixture.id }
-      }).catch(err => ({ data: { response: [] } })),
-
-      axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures/events', {
-        headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        },
-        params: { fixture: fixture.fixture.id }
-      }).catch(err => ({ data: { response: [] } }))
-    ]);
-
-    const detailedData = {
-      fixture: fixture,
-      statistics: statisticsResponse.data.response || [],
-      lineups: lineupsResponse.data.response || [],
-      events: eventsResponse.data.response || []
-    };
-
-    res.json(detailedData);
-  } catch (error) {
-    console.error("❌ Detailed stats error:", error.message);
-    res.status(500).json({ error: "Помилка отримання детальної статистики" });
   }
 });
 
 app.listen(PORT, () => {
   console.log(`✅ Сервер працює на http://localhost:${PORT}`);
   console.log(`🔑 Football-data.org API: ${FOOTBALL_DATA_API_KEY ? 'Підключено' : 'Відсутній'}`);
-  console.log(`🚀 RapidAPI ключ: ${RAPIDAPI_KEY ? 'Підключено' : 'Відсутній'}`);
-  console.log(`🏆 Підтримувані ліги: ${Object.keys(LEAGUE_MAPPING).join(', ')}`);
+  console.log(`🏆 Підтримувані ліги: ${ALL_COMPETITIONS.join(', ')}`);
   console.log(`🔍 Пошук клубів доступний через /search-club/:teamName`);
 });
