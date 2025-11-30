@@ -597,6 +597,73 @@ tr:hover {
   cursor: pointer;
 }
 
+/* Кваліфікаційні зони */
+.ucl-zone {
+  border-left: 6px solid #0066cc !important;
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.05) 0%, transparent 100%) !important;
+}
+
+.relegation-zone {
+  border-left: 6px solid #dc3545 !important;
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.05) 0%, transparent 100%) !important;
+}
+
+.ucl-zone:hover {
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.1) 0%, #f8f8ff 100%) !important;
+}
+
+.relegation-zone:hover {
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.1) 0%, #fff5f5 100%) !important;
+}
+
+/* Легенда турнірної таблиці */
+.table-legend {
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+  padding: 20px;
+  margin-top: -1px;
+  box-shadow: 0 2px 8px rgb(255, 255, 255);
+}
+
+.legend-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #000000;
+  margin-bottom: 12px;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 24px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(37, 36, 36, 0);
+}
+
+.legend-color.ucl-color {
+  background: #0066cc;
+}
+
+.legend-color.relegation-color {
+  background: #ff4444;
+}
+
+.legend-text {
+  font-size: 13px;
+  color: #393939;
+}
+
 .team-cell {
   display: flex;
   align-items: center;
