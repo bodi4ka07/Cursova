@@ -633,21 +633,21 @@ tr:hover {
 
 /* Кваліфікаційні зони */
 .ucl-zone {
-  border-left: 6px solid #0066cc !important;
-  background: linear-gradient(90deg, rgba(0, 102, 204, 0.15) 0%, transparent 100%) !important;
+  border-left: 6px solid #0066cc;
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.15) 0%, transparent 100%);
 }
 
 .relegation-zone {
-  border-left: 6px solid #ff4444 !important;
-  background: linear-gradient(90deg, rgba(255, 68, 68, 0.15) 0%, transparent 100%) !important;
+  border-left: 6px solid #ff4444;
+  background: linear-gradient(90deg, rgba(255, 68, 68, 0.15) 0%, transparent 100%);
 }
 
 .ucl-zone:hover {
-  background: linear-gradient(90deg, rgba(0, 102, 204, 0.25) 0%, #2a2a2a 100%) !important;
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.25) 0%, #2a2a2a 100%);
 }
 
 .relegation-zone:hover {
-  background: linear-gradient(90deg, rgba(255, 68, 68, 0.25) 0%, #2a2a2a 100%) !important;
+  background: linear-gradient(90deg, rgba(255, 68, 68, 0.25) 0%, #2a2a2a 100%);
 }
 
 /* Легенда турнірної таблиці */

@@ -599,21 +599,21 @@ tr:hover {
 
 /* Кваліфікаційні зони */
 .ucl-zone {
-  border-left: 6px solid #0066cc !important;
-  background: linear-gradient(90deg, rgba(0, 102, 204, 0.05) 0%, transparent 100%) !important;
+  border-left: 6px solid #0066cc;
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.05) 0%, transparent 100%);
 }
 
 .relegation-zone {
-  border-left: 6px solid #dc3545 !important;
-  background: linear-gradient(90deg, rgba(220, 53, 69, 0.05) 0%, transparent 100%) !important;
+  border-left: 6px solid #dc3545;
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.05) 0%, transparent 100%);
 }
 
 .ucl-zone:hover {
-  background: linear-gradient(90deg, rgba(0, 102, 204, 0.1) 0%, #f8f8ff 100%) !important;
+  background: linear-gradient(90deg, rgba(0, 102, 204, 0.1) 0%, #f8f8ff 100%);
 }
 
 .relegation-zone:hover {
-  background: linear-gradient(90deg, rgba(220, 53, 69, 0.1) 0%, #fff5f5 100%) !important;
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.1) 0%, #fff5f5 100%);
 }
 
 /* Легенда турнірної таблиці */
@@ -679,19 +679,19 @@ tr:hover {
 }
 
 .group-header-row {
-  background: #28a745 !important;
+  background: #28a745;
 }
 
 .group-header {
-  background: #28a745 !important;
-  color: white !important;
+  background: #28a745;
+  color: white;
   font-weight: bold;
-  padding: 12px !important;
+  padding: 12px;
 }
 
 .group-header-row:hover {
-  background: #28a745 !important;
-  cursor: default !important;
+  background: #28a745;
+  cursor: default;
 }
 
 .points {
