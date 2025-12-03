@@ -1,3 +1,7 @@
+const BASE_HOST = window.location.host || 'localhost:8080';
+const BASE_PROTOCOL = window.location.protocol || 'http:';
+const BASE_URL = `${BASE_PROTOCOL}//${BASE_HOST}`;
+
 let allMatches = [];
 let currentLeague = null;
 
@@ -178,7 +182,8 @@ async function loadUpcomingMatches() {
     loading.style.display = 'block';
     console.log('🏠 Завантаження найближчих матчів...');
     
-    const response = await fetch('http://localhost:8080/upcoming-matches');
+    // <<< ЗМІНА: Використовуємо BASE_URL >>>
+    const response = await fetch(`${BASE_URL}/upcoming-matches`);
     const data = await response.json();
     
     console.log('📊 Отримано турнірів:', data.competitions?.length || 0);
@@ -231,7 +236,6 @@ async function loadUpcomingMatches() {
               </div>
               
               ${(homeStats && awayStats) ? `
-              <!-- ПРОГНОЗ ПЕРЕМОГИ -->
               ${(() => {
                 const probability = calculateWinProbability(homeStats, awayStats);
                 if (!probability) return '';
@@ -267,7 +271,6 @@ async function loadUpcomingMatches() {
                 `;
               })()}
               
-              <!-- СТАТИСТИКА КОМАНД -->
               <div class="match-stats-row">
                 <div class="team-stats-section">
                   <div class="team-stat-compact">
@@ -460,7 +463,8 @@ async function loadStandings() {
     if (loadingDiv) loadingDiv.style.display = "block";
     tbody.innerHTML = "";
     
-    const response = await fetch(`http://localhost:8080/standings/${currentLeague}`);
+    // <<< ЗМІНА: Використовуємо BASE_URL >>>
+    const response = await fetch(`${BASE_URL}/standings/${currentLeague}`);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -477,26 +481,55 @@ async function loadStandings() {
 
     const table = data.standings[0]?.table || [];
     
-    table.forEach(team => {
-      const row = document.createElement('tr');
-      const crestUrl = team.team?.crest || '';
-      row.innerHTML = `
-        <td>${team.position}</td>
-        <td class="team-cell">
-          ${crestUrl ? `<img src="${crestUrl}" class="team-crest" onerror="this.style.display='none'">` : ''}
-          <span>${team.team?.name ?? "-"}</span>
-        </td>
-        <td>${team.playedGames ?? "-"}</td>
-        <td>${team.won ?? "-"}</td>
-        <td>${team.draw ?? "-"}</td>
-        <td>${team.lost ?? "-"}</td>
-        <td>${team.goalsFor ?? "-"}</td>
-        <td>${team.goalsAgainst ?? "-"}</td>
-        <td><b>${(team.goalsFor - team.goalsAgainst) >= 0 ? '+' : ''}${team.goalsFor - team.goalsAgainst}</b></td>
-        <td><b class="points">${team.points ?? "-"}</b></td>
-      `;
-      tbody.appendChild(row);
-    });
+  table.forEach(team => {
+  const row = document.createElement('tr');
+  const crestUrl = team.team?.crest || '';
+  const position = team.position;
+  const totalTeams = table.length;
+  
+  // Визначаємо зону команди
+  let zoneClass = '';
+  
+  // Ліга чемпіонів 
+  if (['PL', 'PD', 'SA', 'BL1', ].includes(currentLeague)) {
+    if (position <= 4) zoneClass = 'ucl-zone';
+  } else if (['FL1'].includes(currentLeague)) {
+    if (position <= 3) zoneClass = 'ucl-zone';
+  } else if (['DED'].includes(currentLeague)) {
+    if (position <= 2) zoneClass = 'ucl-zone';
+  } else if (['DED', 'PPL',].includes(currentLeague)) {
+    if (position === 1) zoneClass = 'ucl-zone';
+  }
+  
+  // Зона вильоту 
+  if (['PL', 'PD', 'SA',].includes(currentLeague)) {
+    if (position >= totalTeams - 2) zoneClass = 'relegation-zone';
+  } else if (['DED', 'BL1', 'PPL', 'FL1'].includes(currentLeague)) {
+    if (position >= totalTeams - 1) zoneClass = 'relegation-zone';
+  } else if (currentLeague === 'BSA') {
+    if (position >= totalTeams - 3) zoneClass = 'relegation-zone';
+  }
+  
+  row.className = zoneClass;
+  
+  row.innerHTML = `
+    <td>${position}</td>
+    <td class="team-cell">
+      ${crestUrl ? `<img src="${crestUrl}" class="team-crest" onerror="this.style.display='none'">` : ''}
+      <span>${team.team?.name ?? "-"}</span>
+    </td>
+    <td>${team.playedGames ?? "-"}</td>
+    <td>${team.won ?? "-"}</td>
+    <td>${team.draw ?? "-"}</td>
+    <td>${team.lost ?? "-"}</td>
+    <td>${team.goalsFor ?? "-"}</td>
+    <td>${team.goalsAgainst ?? "-"}</td>
+    <td><b>${(team.goalsFor - team.goalsAgainst) >= 0 ? '+' : ''}${team.goalsFor - team.goalsAgainst}</b></td>
+    <td><b class="points">${team.points ?? "-"}</b></td>
+  `;
+  
+  tbody.appendChild(row);
+});
   } catch (err) {
     console.error("Error loadStandings:", err);
     if (loadingDiv) loadingDiv.style.display = "none";
@@ -515,7 +548,8 @@ async function loadMatches() {
     if (loadingDiv) loadingDiv.style.display = "block";
     tbody.innerHTML = "";
 
-    const response = await fetch(`http://localhost:8080/matches/${currentLeague}`);
+    // <<< ЗМІНА: Використовуємо BASE_URL >>>
+    const response = await fetch(`${BASE_URL}/matches/${currentLeague}`);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -612,8 +646,9 @@ function drawChart(data) {
 
 async function loadMatchDetails(matchId) {
   try {
+    // <<< ЗМІНА: Використовуємо BASE_URL >>>
     // Отримуємо базову інформацію про матч
-    const basicResponse = await fetch(`http://localhost:8080/match/${matchId}`);
+    const basicResponse = await fetch(`${BASE_URL}/match/${matchId}`);
     const basicData = await basicResponse.json();
     const basicMatch = basicData.match;
     
@@ -629,8 +664,9 @@ async function loadMatchDetails(matchId) {
     
     // Намагаємося отримати детальну статистику
     try {
+       // <<< ЗМІНА: Використовуємо BASE_URL >>>
       const detailedResponse = await fetch(
-        `http://localhost:8080/match-detailed/${currentLeague}/${encodeURIComponent(homeTeam)}/${encodeURIComponent(awayTeam)}/${encodeURIComponent(matchDate)}`
+        `${BASE_URL}/match-detailed/${currentLeague}/${encodeURIComponent(homeTeam)}/${encodeURIComponent(awayTeam)}/${encodeURIComponent(matchDate)}`
       );
       
       if (detailedResponse.ok) {
@@ -922,7 +958,8 @@ async function searchClub(teamName) {
     document.getElementById('search-results-view').innerHTML = '<div class="loading">Шукаю клуб...</div>';
     showView('search-results');
     
-    const response = await fetch(`http://localhost:8080/search-club/${encodeURIComponent(teamName)}`);
+    // <<< ЗМІНА: Використовуємо BASE_URL >>>
+    const response = await fetch(`${BASE_URL}/search-club/${encodeURIComponent(teamName)}`);
     const data = await response.json();
     
     if (data.error) {
@@ -1114,3 +1151,5 @@ function showView(viewName) {
     }
   }
 }
+
+
