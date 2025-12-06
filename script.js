@@ -20,9 +20,10 @@ const leagueNames = {
   'BSA': 'Série A'
 };
 
-// Ініціалізація теми при завантаженні
+// Викликаємо при завантаженні
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  loadClubsDatabase(); // Завантажуємо БД
   loadUpcomingMatches();
 });
 
@@ -844,31 +845,31 @@ function generateStatRow(label, homeStat, awayStat) {
 
 // === ПОШУК КЛУБІВ ===
 
+// === ПОШУК КЛУБІВ З ЛОКАЛЬНОЇ БД ===
+
+let clubsDatabase = [];
+
+// Завантаження бази даних клубів при старті
+async function loadClubsDatabase() {
+  try {
+    const response = await fetch('clubs-database.json');
+    const data = await response.json();
+    clubsDatabase = data.clubs;
+    console.log('✅ Завантажено клубів:', clubsDatabase.length);
+  } catch (error) {
+    console.error('❌ Помилка завантаження БД клубів:', error);
+    // Fallback на старий масив якщо файл не знайдено
+    clubsDatabase = [
+      {name: 'Manchester United FC', league: 'PL'},
+      {name: 'FC Barcelona', league: 'PD'},
+      // ... скорочена версія
+    ];
+  }
+}
+
+// Пошук з автодоповненням
 let searchTimeout;
 const searchInput = document.getElementById('searchInput');
-
-const popularClubs = [
-  'Manchester United FC', 'Manchester City FC', 'Liverpool FC', 'Chelsea FC', 'Arsenal FC',
-  'Tottenham Hotspur FC', 'Newcastle United FC', 'Aston Villa FC', 'Brighton & Hove Albion FC',
-  'West Ham United FC', 
-  
-  'FC Barcelona', 'Real Madrid CF', 'Atlético de Madrid', 'Real Betis Balompié',
-  'Sevilla FC', 'Valencia CF', 'Real Sociedad de Fútbol', 'Villarreal CF', 
-  
-  'Juventus FC', 'FC Internazionale Milano', 'AC Milan', 'SSC Napoli', 'AS Roma', 'SS Lazio', 'Atalanta BC',
-  'ACF Fiorentina', 
-  
-  'FC Bayern München', 'Borussia Dortmund', 'RB Leipzig', 'Bayer 04 Leverkusen',
-  'Eintracht Frankfurt', 'VfB Stuttgart', 
-  
-  'Paris Saint-Germain FC', 'Olympique de Marseille', 'Olympique Lyonnais', 'AS Monaco FC', 'OGC Nice', 
-  
-  'AFC Ajax', 'PSV', 'Feyenoord Rotterdam', 'AZ', 'Sparta Rotterdam',
-  
-  'CR Flamengo', 'Fluminense FC', 'Botafogo FR', 'Santos FC', 'SE Palmeiras',
-  
-  'FC Porto', 'Sport Lisboa e Benfica', 'Sporting Clube de Portugal', 
-];
 
 searchInput?.addEventListener('input', (e) => {
   const searchTerm = e.target.value.trim();
@@ -893,13 +894,19 @@ searchInput?.addEventListener('input', (e) => {
 function showSearchSuggestions(searchTerm) {
   const searchLower = searchTerm.toLowerCase();
   
-  const suggestions = popularClubs.filter(club => {
-    const clubLower = club.toLowerCase();
-    const clubWords = clubLower.split(/\s+/);
-    
-    return clubWords.some(word => word.startsWith(searchLower)) || 
-           clubLower.includes(searchLower);
-  }).slice(0, 8);
+  // Пошук по локальній БД
+  const suggestions = clubsDatabase
+    .filter(club => {
+      const nameLower = club.name.toLowerCase();
+      const shortNameLower = (club.shortName || '').toLowerCase();
+      const tlaLower = (club.tla || '').toLowerCase();
+      
+      return nameLower.includes(searchLower) || 
+             shortNameLower.includes(searchLower) ||
+             tlaLower.includes(searchLower) ||
+             nameLower.split(/\s+/).some(word => word.startsWith(searchLower));
+    })
+    .slice(0, 8);
   
   if (suggestions.length === 0) return;
   
@@ -913,9 +920,20 @@ function showSearchSuggestions(searchTerm) {
   
   suggestionBox.innerHTML = suggestions.map(club => {
     const regex = new RegExp(`(${searchTerm})`, 'gi');
-    const highlighted = club.replace(regex, '<strong>$1</strong>');
-    return `<div class="suggestion-item" onclick="selectSuggestion('${club.replace(/'/g, "\\'")}')">${highlighted}</div>`;
+    const highlighted = club.name.replace(regex, '<strong>$1</strong>');
+    
+    // Додаємо емблему та лігу
+    return `
+      <div class="suggestion-item" onclick="selectSuggestion('${club.name.replace(/'/g, "\\'")}')">
+        ${club.crest ? `<img src="${club.crest}" class="suggestion-logo" onerror="this.style.display='none'">` : ''}
+        <div class="suggestion-info">
+          <div class="suggestion-name">${highlighted}</div>
+          <div class="suggestion-league">${club.country} · ${club.league}</div>
+        </div>
+      </div>
+    `;
   }).join('');
+  
   suggestionBox.style.display = 'block';
 }
 
