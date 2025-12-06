@@ -1343,3 +1343,44 @@ tr:hover {
   font-weight: 700;
   color: #ff6b6b;
 }
+
+/* Покращені підказки пошуку */
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.suggestion-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.suggestion-info {
+  flex: 1;
+}
+
+.suggestion-name {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.suggestion-league {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.suggestion-item:hover {
+  background: #3e3e3e;
+}
+
+.suggestion-item:hover .suggestion-name {
+  color: #ff6b6b;
+}
